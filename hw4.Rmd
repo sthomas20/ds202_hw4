@@ -40,7 +40,7 @@ ChickWeight %>%
 
 
 complete <- filter(ChickWeight, Chick != 8 & Chick != 15 & Chick != 16 & Chick != 18 & Chick != 44)
-head(complete, 3)
+head(complete, n=3)
 ```
 
 
@@ -50,13 +50,60 @@ complete<- complete %>%
   group_by(Chick) %>%
   mutate(weightgain = (weight - weight[Time == 0]))
 
-head(complete, 3)
+head(complete, n= 3)
 ```
 
 4. Use `{ggplot2}` to create side-by-side boxplots of `weightgain` by `Diet` for day 21. Change the order of the categories in the Diet variable such that the boxplots are ordered by median `weightgain`, and the lower limit of the y axis should be 0. Describe the relationship in 2-3 sentences. 
+
+```{r}
+day21<- filter(complete, Time == 21)
+one<- tmp <- ggplot(day21, aes(x = reorder(Diet, weightgain, FUN = median), y = weightgain)) + geom_boxplot() + expand_limits(y=0) + xlab("Diet") + ylab("Weight Gain") + ggtitle("Amount of weight gained over time")
+one<- one + theme(plot.title = element_text(hjust=0.5))
+one
+```
+
+  The boxplot I think clearly shows that the increase in weight gain as the value of your diet again increases based on looking at the median but breaks after diet 2. I see this because the median for diet 3 is larger than diet 4. You can also see that the diet there has the highest weight gain based on the IQR and the median shown. But I guess who could also see there isn't an obvious relationship between the the diets but you could say that  chicks are prone to more weight gain if diets over 3. 
+
 5. Answer each of the following questions using numerical and graphical summary. Also explain what you found: (a) Which chick gained the most weight and which gained the least weight? (b) What diets were they on?
+```{r}
+maxWeight <- max(complete$weightgain)
+maxWeight
+
+minWeight<- min(complete$weightgain)
+minWeight
+
+weightGain<- complete %>% 
+  group_by(Chick) %>%
+  filter(weightgain == maxWeight | weightgain == minWeight)
+print(weightGain)
+
+ggplot(weightGain, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + guides(colour = guide_legend(reverse=T)) + facet_wrap(~Diet) + xlab("Time") + ylab("Weight") + ggtitle("Most/Least weight gained Chick")
+```
+Based on the output of both my nummerical and graphical summary you can see that the chick that gained the least amount of weight was chick 3 and was on diet 1 and the chick that gained the most amount of weight was chick 35 and was on diet 3.
+
+
 6. For the chicks with the least and the most weight at time 0, plot their growth trajectories over time. </br>
+
+```{r}
+chicks<- complete %>% 
+  group_by(Chick) %>%
+  filter(Chick == 3 | Chick == 35)
+
+ggplot(chicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight")
+
+```
+
 7. Add to the previous plot the average growth trajectory for all chicks (calculated as the mean weight for each chick at each time). How do the trajectories compare?
+```{r}
+ggplot(chicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight") + geom_smooth(method="lm") + geom_smooth(data=complete, aes(x = Time, y = weight, colour="Trend Line"), method="lm")
+
+```
+
 8. What else do you find interesting in the dataset? Show your exploratory analysis.
 
+```{r}
+
+
+
+```
 Note: your submission is supposed to be fully reproducible, i.e. the TA and I will 'knit' your submission in RStudio. 
