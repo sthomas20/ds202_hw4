@@ -375,8 +375,57 @@ summary {
 <p><strong>Submission instructions</strong>: Create a folder named <code>ds202_hw4</code>, and name the RMarkDown file including your solutions <code>hw4.Rmd</code> under this folder. For the submission, create a GitHub repository named <code>ds202_hw4</code> under your GitHub account, and push both <code>hw4.Rmd</code> and the knitted <code>hw4.html</code> before the deadline. I will assume you use the same GitHub username as for your HW3 submission. The latest version of your homework appearing on GitHub before the deadline is graded. <em>It is crucial to follow the exact folder structure and file names</em>. This homework is <strong>due on March 4</strong> before class.</p>
 <ol style="list-style-type: decimal">
 <li>Get a frequency breakdown of the number of chicks, their average weight and the standard deviation of the weights in each of the diets at the start of the study. Store the resulting data frame in a variable named <code>weight0</code> and print.<br> <!-- 5 pts of extra credit: construct a ggplot that shows average weights by diet with an interval (shown as a line) of +- the standard deviation around the averages. --></li>
+</ol>
+<pre class="r"><code>weight0 &lt;- ChickWeight %&gt;%
+  filter(Time == 0) %&gt;%
+  group_by(Diet) %&gt;%
+  summarize(avg_weight = mean(weight, na.rm = TRUE), sd_weight = sd(weight, na.rm = TRUE)) %&gt;%
+  print</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   Diet  avg_weight sd_weight
+##   &lt;fct&gt;      &lt;dbl&gt;     &lt;dbl&gt;
+## 1 1           41.4     0.995
+## 2 2           40.7     1.49 
+## 3 3           40.8     1.03 
+## 4 4           41       1.05</code></pre>
+<ol start="2" style="list-style-type: decimal">
 <li>Each chick should have twelve weight measurements. Use the <code>dplyr</code> package to identify how many measurements are there for each chick. Extract a subset of the data for all chicks with complete information, name the data set <code>complete</code>, and print the first 3 rows. (Hint: you might want to use mutate to introduce a helper variable consisting of the number of observations)</li>
+</ol>
+<pre class="r"><code>ChickWeight %&gt;%
+  group_by(Chick) %&gt;%
+  summarize(max12 = n()) %&gt;%
+  filter(max12 != 12) %&gt;% 
+  print(n= Inf)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Chick max12
+##   &lt;ord&gt; &lt;int&gt;
+## 1 18        2
+## 2 16        7
+## 3 15        8
+## 4 8        11
+## 5 44       10</code></pre>
+<pre class="r"><code>complete &lt;- filter(ChickWeight, Chick != 8 &amp; Chick != 15 &amp; Chick != 16 &amp; Chick != 18 &amp; Chick != 44)
+head(complete, 3)</code></pre>
+<pre><code>##   weight Time Chick Diet
+## 1     42    0     1    1
+## 2     51    2     1    1
+## 3     59    4     1    1</code></pre>
+<ol start="3" style="list-style-type: decimal">
 <li>In the complete data set introduce a new variable that measures the current weight difference compared to day 0. Name this variable <code>weightgain</code> and print the first 3 rows of the new data frame.</li>
+</ol>
+<pre class="r"><code>complete&lt;- complete %&gt;%
+  group_by(Chick) %&gt;%
+  mutate(weightgain = (weight - weight[Time == 0]))
+
+head(complete, 3)</code></pre>
+<pre><code>## # A tibble: 3 x 5
+## # Groups:   Chick [1]
+##   weight  Time Chick Diet  weightgain
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt; &lt;fct&gt;      &lt;dbl&gt;
+## 1     42     0 1     1              0
+## 2     51     2 1     1              9
+## 3     59     4 1     1             17</code></pre>
+<ol start="4" style="list-style-type: decimal">
 <li>Use <code>{ggplot2}</code> to create side-by-side boxplots of <code>weightgain</code> by <code>Diet</code> for day 21. Change the order of the categories in the Diet variable such that the boxplots are ordered by median <code>weightgain</code>, and the lower limit of the y axis should be 0. Describe the relationship in 2-3 sentences.</li>
 <li>Answer each of the following questions using numerical and graphical summary. Also explain what you found: (a) Which chick gained the most weight and which gained the least weight? (b) What diets were they on?</li>
 <li>For the chicks with the least and the most weight at time 0, plot their growth trajectories over time. </br></li>
