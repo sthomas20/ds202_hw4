@@ -50,27 +50,51 @@ minWeight
 
 weightGain<- complete %>% 
   group_by(Chick) %>%
-  filter(weightgain == maxWeight | weightgain == minWeight)
-print(weighGain)
+  filter(Time == 21)
+print(weightGain)
 
-ggplot(weightGain, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + guides(colour = guide_legend(reverse=T)) + facet_wrap(~Diet) + xlab("Time") + ylab("Weight") + ggtitle("Most/Least weight gained Chick")
+
+ggplot(weightGain, aes(x=Chick, y = weightgain, fill = Diet)) + geom_col() + xlab("Time") + ylab("Weight Gain") + ggtitle("Least/Most weight gained Chick")
 
 
 #Question 6
-chicks<- complete %>% 
-  group_by(Chick) %>%
-  filter(Chick == 3 | Chick == 35)
+chicks<- complete %>%
+  as.data.frame() %>%
+  filter(Time == 0) %>%
+  filter(weight == max(weight) | weight == min(weight)) 
 
-ggplot(chicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight")
+newChicks<- chicks %>% 
+  select(Chick) %>%
+  left_join(ChickWeight, by = "Chick")
+  
+newChicks
+
+
+
+ggplot(newChicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight")
+
+#chick 48 and chick 19
 
 
 #Question 7
-ggplot(chicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight") + geom_smooth(method="lm") + geom_smooth(data=complete, aes(x = Time, y = weight, colour="Trend Line"), method="lm")
+ggplot(newChicks, aes(x=Time, y=weight, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick # 3 and 35 growth trajectories") + xlab("Time") + ylab("Weight") + geom_smooth(method="lm") + geom_smooth(data=complete, aes(x = Time, y = weight, colour="Trend Line"), method="lm")
 
   
 
 
-
-
 #Question 8
+min<- min(complete$weight)
+max<- max(complete$weight)
 
+day1<- complete %>%
+  group_by(Chick) %>%
+  filter(weight == max | weight == min) %>%
+  print
+
+#plotting chick 1 and chick 50 and seeing if there is a realationship 
+minMax<- complete %>%
+  group_by(Chick) %>%
+  filter(Chick == 1 | Chick == 50) %>%
+  print
+
+ggplot(minMax, aes(x=Time, y=weightgain, colour= Chick)) + geom_line() + geom_point() + ggtitle("Chick #1 vs Chick #50") + xlab("Time") + ylab("Weight")
